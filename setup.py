@@ -16,7 +16,6 @@ except IOError:
 
 
 install_requires = [
-    'setuptools',
 ]
 
 
@@ -37,10 +36,10 @@ setup(name='magicalimport',
           "Programming Language :: Python",
           "Programming Language :: Python :: Implementation :: CPython",
       ],
-      keywords='',
-      author="",
-      author_email="",
-      url="",
+      keywords='import, physical address, file path',
+      author="podhmo",
+      author_email="ababjam61+github@gmail.com",
+      url="https://github.com/podhmo/magicalimport",
       packages=find_packages(exclude=["magicalimport.tests"]),
       include_package_data=True,
       zip_safe=False,
