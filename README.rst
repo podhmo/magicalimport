@@ -30,10 +30,10 @@ a/b/c/foo.py
 
 .. code-block:: python
 
-  from magicalimport import import_by_physical_path
+  from magicalimport import import_from_physical_path
 
   # importing foo.py as the module named foo2
-  foo = import_by_physical_path("./a/b/c/foo.py", as_="foo2")
+  foo = import_from_physical_path("./a/b/c/foo.py", as_="foo2")
   print(foo.name)
 
   # cached in sys.modules, so it is ok.
@@ -46,15 +46,15 @@ star import
 
 .. code-block:: python
 
-   from magicalimport import import_by_physical_path
+   from magicalimport import import_from_physical_path
    from magicalimport import expose_all_members
 
    # something of like a `from foo import *`
-   expose_all_members(import_by_physical_path("./a/b/c/foo.py"))
+   expose_all_members(import_from_physical_path("./a/b/c/foo.py"))
    print(name)  # "foo"
    # print(_age)  # NameError.. because expose_all_members() doesn't expose the symbols started by "_"
 
    # or
    from magicalimport import expose_members
-   expose_all_members(import_by_physical_path("./a/b/c/foo.py"), members=["_age"])
+   expose_all_members(import_from_physical_path("./a/b/c/foo.py"), members=["_age"])
    print(_age)  # "*secret*"

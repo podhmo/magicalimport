@@ -15,6 +15,6 @@ def expose_members(module, members, globals_=None, _depth=1):
     return globals_
 
 
-def import_by_physical_path(path, as_=None):
+def import_from_physical_path(path, as_=None):
     module_id = as_ or path.replace("/", "_").rstrip(".py")
     return machinery.SourceFileLoader(module_id, path).load_module()
