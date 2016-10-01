@@ -36,7 +36,7 @@ a/b/c/foo.py
   foo = import_by_physical_path("./a/b/c/foo.py", as_="foo2")
   print(foo.name)
 
-  # cached by sys.modules, so it is ok.
+  # cached in sys.modules, so it is ok.
   import foo2
   print(foo2.name)
 
