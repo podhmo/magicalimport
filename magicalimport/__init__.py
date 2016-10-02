@@ -1,3 +1,4 @@
+import os.path
 import sys
 try:
     from importlib import machinery
@@ -39,6 +40,10 @@ def expose_members(module, members, globals_=None, _depth=1):
     return globals_
 
 
-def import_from_physical_path(path, as_=None):
+def import_from_physical_path(path, as_=None, here=None):
+    if here is not None:
+        here = here if os.path.isdir(here) else os.path.dirname(here)
+        here = os.path.normpath(os.path.abspath(here))
+        path = os.path.join(here, path)
     module_id = as_ or path.replace("/", "_").rstrip(".py")
     return machinery.SourceFileLoader(module_id, path).load_module()
