@@ -41,6 +41,15 @@ a/b/c/foo.py
   print(foo2.name)
 
 
+here option
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: python
+
+  from magicalimport import import_from_physical_path
+
+  import_from_physical_path("bar.py", here="/tmp/foo", as_="bar")
+
 star import
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -56,5 +65,5 @@ star import
 
    # or
    from magicalimport import expose_members
-   expose_all_members(import_from_physical_path("./a/b/c/foo.py"), members=["_age"])
+   expose_members(import_from_physical_path("./a/b/c/foo.py"), members=["_age"])
    print(_age)  # "*secret*"
