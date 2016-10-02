@@ -1,6 +1,9 @@
 magicalimport
 ========================================
 
+.. image:: https://travis-ci.org/podhmo/magicalimport.svg?branch=master
+  :target: https://travis-ci.org/podhmo/magicalimport.svg?branch=master
+
 Importing a module from physical file path.
 
 examples
