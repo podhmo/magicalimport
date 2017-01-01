@@ -1,7 +1,7 @@
 import os.path
 import sys
 try:
-    from importlib import machinery
+    from importlib import machinery, import_module
 except ImportError:
     # patching for import machinery
     # https://bitbucket.org/ericsnowcurrently/importlib2/issues/8/unable-to-import-importlib2machinery
@@ -25,6 +25,7 @@ except ImportError:
         fix_importlib_original(ns)
     f.fix_importlib = fix_importlib
     from importlib2 import machinery
+    from importlib2 import import_module
 
 
 def expose_all_members(module, globals_=None, _depth=2):
@@ -47,3 +48,17 @@ def import_from_physical_path(path, as_=None, here=None):
         path = os.path.join(here, path)
     module_id = as_ or path.replace("/", "_").rstrip(".py")
     return machinery.SourceFileLoader(module_id, path).load_module()
+
+
+def import_symbol(sym, here=None, sep=":"):
+    module_path, fn_name = sym.rsplit(sep, 2)
+    try:
+        _, ext = os.path.splitext(module_path)
+        if ext == ".py":
+            module = import_from_physical_path(module_path, here=here)
+        else:
+            module = import_module(module_path)
+        return getattr(module, fn_name)
+    except (ImportError, AttributeError) as e:
+        sys.stderr.write("could not import {!r}\n{}\n".format(sym, e))
+        raise
