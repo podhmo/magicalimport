@@ -69,7 +69,7 @@ def import_symbol(sym, here=None, sep=":", ns=None):
         sym = "{}:{}".format(ns, sym)
     module_path, fn_name = sym.rsplit(sep, 2)
     try:
-        module = import_module(sym, here=here, sep=sep)
+        module = import_module(module_path, here=here, sep=sep)
         return getattr(module, fn_name)
     except (ImportError, AttributeError) as e:
         sys.stderr.write("could not import {!r}\n{}\n".format(sym, e))
