@@ -56,8 +56,7 @@ def import_from_physical_path(path, as_=None, here=None):
     return machinery.SourceFileLoader(module_id, path).load_module()
 
 
-def import_module(sym, here=None, sep=":"):
-    module_path, fn_name = sym.rsplit(sep, 2)
+def import_module(module_path, here=None, sep=":"):
     _, ext = os.path.splitext(module_path)
     if ext == ".py":
         return import_from_physical_path(module_path, here=here)
