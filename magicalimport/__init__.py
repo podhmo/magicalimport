@@ -1,7 +1,8 @@
 import os.path
 import sys
 try:
-    from importlib import machinery, import_module
+    from importlib import machinery
+    from importlib import import_module as import_module_original
 except ImportError:
     # patching for import machinery
     # https://bitbucket.org/ericsnowcurrently/importlib2/issues/8/unable-to-import-importlib2machinery
@@ -10,22 +11,27 @@ except ImportError:
 
     def fix_importlib(ns):
         if ns["__name__"] == 'importlib2.machinery':
+
             class _LoaderBasics:
                 load_module = object()
+
             ns["_LoaderBasics"] = _LoaderBasics
 
             class FileLoader:
                 load_module = object()
+
             ns["FileLoader"] = FileLoader
 
             class _NamespaceLoader:
                 load_module = object()
                 module_repr = object()
+
             ns["_NamespaceLoader"] = _NamespaceLoader
         fix_importlib_original(ns)
+
     f.fix_importlib = fix_importlib
     from importlib2 import machinery
-    from importlib2 import import_module
+    from importlib2 import import_module as import_module_original
 
 
 def expose_all_members(module, globals_=None, _depth=2):
@@ -50,14 +56,21 @@ def import_from_physical_path(path, as_=None, here=None):
     return machinery.SourceFileLoader(module_id, path).load_module()
 
 
-def import_symbol(sym, here=None, sep=":"):
+def import_module(sym, here=None, sep=":"):
+    module_path, fn_name = sym.rsplit(sep, 2)
+    _, ext = os.path.splitext(module_path)
+    if ext == ".py":
+        return import_from_physical_path(module_path, here=here)
+    else:
+        return import_module_original(module_path)
+
+
+def import_symbol(sym, here=None, sep=":", ns=None):
+    if ns is not None and sep not in sym:
+        sym = "{}:{}".format(ns, sym)
     module_path, fn_name = sym.rsplit(sep, 2)
     try:
-        _, ext = os.path.splitext(module_path)
-        if ext == ".py":
-            module = import_from_physical_path(module_path, here=here)
-        else:
-            module = import_module(module_path)
+        module = import_module(sym, here=here, sep=sep)
         return getattr(module, fn_name)
     except (ImportError, AttributeError) as e:
         sys.stderr.write("could not import {!r}\n{}\n".format(sym, e))
