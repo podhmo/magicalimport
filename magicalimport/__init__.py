@@ -22,7 +22,7 @@ def import_from_physical_path(path, as_=None, here=None):
         here = here if os.path.isdir(here) else os.path.dirname(here)
         here = os.path.normpath(os.path.abspath(here))
         path = os.path.join(here, path)
-    module_id = as_ or path.replace("/", "_").rstrip(".py")
+    module_id = as_ or path.replace("/", "_").rsplit(".py", 1)[0]
     return machinery.SourceFileLoader(module_id, path).load_module()
 
 
