@@ -36,7 +36,7 @@ def import_module(module_path, here=None, sep=":"):
 
 def import_symbol(sym, here=None, sep=":", ns=None):
     if ns is not None and sep not in sym:
-        sym = "{}:{}".format(ns, sym)
+        sym = "{}{}{}".format(ns, sep, sym)
     module_path, fn_name = sym.rsplit(sep, 2)
     try:
         module = import_module(module_path, here=here, sep=sep)
