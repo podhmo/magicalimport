@@ -17,6 +17,9 @@ except IOError:
 
 install_requires = [
 ]
+if sys.version_info[0] == 2:
+    install_requires.append("importlib2")
+
 docs_extras = [
 ]
 

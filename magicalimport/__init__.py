@@ -1,7 +1,7 @@
 import os.path
 import sys
-from importlib import import_module as import_module_original
 from magicalimport.compat import _create_module
+from magicalimport.compat import import_module as import_module_original
 
 
 def expose_all_members(module, globals_=None, _depth=2):
