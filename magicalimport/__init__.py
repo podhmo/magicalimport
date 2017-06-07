@@ -1,6 +1,6 @@
 import os.path
 import sys
-from importlib import machinery
+from importlib.util import spec_from_file_location, module_from_spec
 from importlib import import_module as import_module_original
 
 
@@ -23,7 +23,13 @@ def import_from_physical_path(path, as_=None, here=None):
         here = os.path.normpath(os.path.abspath(here))
         path = os.path.join(here, path)
     module_id = as_ or path.replace("/", "_").rsplit(".py", 1)[0]
-    return machinery.SourceFileLoader(module_id, path).load_module()
+    if module_id in sys.modules:
+        return sys.modules[module_id]
+    spec = spec_from_file_location(module_id, path)
+    module = module_from_spec(spec)
+    spec.loader.exec_module(module)
+    sys.modules[module_id] = module
+    return module
 
 
 def import_module(module_path, here=None, sep=":"):
