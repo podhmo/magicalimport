@@ -1,7 +1,7 @@
 import sys
-from importlib.util import spec_from_file_location
 
 try:
+    from importlib.util import spec_from_file_location
     from importlib.util import module_from_spec
 
     def _create_module(module_id, path):
