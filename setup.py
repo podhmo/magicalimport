@@ -17,9 +17,6 @@ except IOError:
 
 install_requires = [
 ]
-if sys.version_info[0] == 2:
-    install_requires.append("importlib2")
-
 docs_extras = [
 ]
 
@@ -30,7 +27,7 @@ testing_extras = tests_require + [
 ]
 
 setup(name='magicalimport',
-      version='0.3.2',
+      version='0.4.0',
       description='importing a module by physical file path',
       long_description=README + '\n\n' + CHANGES,
       classifiers=[
