@@ -25,7 +25,10 @@ def import_from_physical_path(path, as_=None, here=None):
     module_id = as_ or path.replace("/", "_").rsplit(".py", 1)[0]
     if module_id in sys.modules:
         return sys.modules[module_id]
-    return _create_module(module_id, path)
+    try:
+        return _create_module(module_id, path)
+    except FileNotFoundError as e:
+        raise ModuleNotFoundError(e) from None
 
 
 def import_module(module_path, here=None, sep=":"):
@@ -36,13 +39,19 @@ def import_module(module_path, here=None, sep=":"):
         return import_module_original(module_path)
 
 
-def import_symbol(sym, here=None, sep=":", ns=None):
+def import_symbol(sym, here=None, sep=":", ns=None, silent=False):
     if ns is not None and sep not in sym:
         sym = "{}{}{}".format(ns, sep, sym)
     module_path, fn_name = sym.rsplit(sep, 2)
     try:
         module = import_module(module_path, here=here, sep=sep)
-        return getattr(module, fn_name)
-    except (ImportError, AttributeError) as e:
-        sys.stderr.write("could not import {!r}\n{}\n".format(sym, e))
+    except ImportError as e:  # ModuleNotFoundError is subclass of ImportError
+        if not silent:
+            sys.stderr.write("could not import {!r}\n{}\n".format(sym, e))
         raise
+    try:
+        return getattr(module, fn_name)
+    except AttributeError as e:
+        if not silent:
+            sys.stderr.write("could not import {!r}\n{}\n".format(sym, e))
+        raise ImportError(e) from None
