@@ -50,7 +50,10 @@ def import_symbol(sym, here=None, sep=":", ns=None, silent=False):
     except ImportError as e:  # ModuleNotFoundError is subclass of ImportError
         if not silent:
             sys.stderr.write("could not import {!r}\n{}\n".format(sym, e))
-        raise
+
+        if getattr(ModuleNotFoundError, "fake", False):
+            raise
+        raise ModuleNotFoundError(e)
     try:
         return getattr(module, fn_name)
     except AttributeError as e:

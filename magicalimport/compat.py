@@ -12,7 +12,7 @@ try:
 except NameError:
     # for <3.6
     class ModuleNotFoundError(ImportError):
-        pass
+        fake = True
 
 
 try:
@@ -20,7 +20,7 @@ try:
 except NameError:
 
     class FileNotFoundError(OSError):
-        pass
+        fake = True
 
 
 try:
