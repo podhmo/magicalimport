@@ -28,7 +28,7 @@ def import_from_physical_path(path, as_=None, here=None):
     try:
         return _create_module(module_id, path)
     except FileNotFoundError as e:
-        raise ModuleNotFoundError(e) from None
+        raise ModuleNotFoundError(e)
 
 
 def import_module(module_path, here=None, sep=":"):
@@ -54,4 +54,4 @@ def import_symbol(sym, here=None, sep=":", ns=None, silent=False):
     except AttributeError as e:
         if not silent:
             sys.stderr.write("could not import {!r}\n{}\n".format(sym, e))
-        raise ImportError(e) from None
+        raise ImportError(e)
