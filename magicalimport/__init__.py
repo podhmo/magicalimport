@@ -1,14 +1,8 @@
 import os.path
 import sys
+from magicalimport.compat import ModuleNotFoundError
 from magicalimport.compat import _create_module
 from magicalimport.compat import import_module as import_module_original
-
-try:
-    ModuleNotFoundError
-except NameError:
-    # for <3.6
-    class ModuleNotFoundError(ImportError):
-        pass
 
 
 def expose_all_members(module, globals_=None, _depth=2):

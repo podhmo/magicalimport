@@ -1,5 +1,6 @@
 import unittest
 import os.path
+from magicalimport.compat import ModuleNotFoundError
 
 here = os.path.dirname(os.path.abspath(__file__))
 
@@ -50,7 +51,7 @@ class ImportSymbolTests(unittest.TestCase):
         with self.assertRaises(ImportError) as c:
             self._callFUT("collections:foo")
 
-    def test_target_module_has_not_member(self):
+    def test_target_file_has_not_member(self):
         import os.path
 
         path = os.path.join(here, "../../examples/a/b/c/foo.py")
