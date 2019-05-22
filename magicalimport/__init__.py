@@ -1,6 +1,7 @@
 import os.path
 import sys
 from magicalimport.compat import ModuleNotFoundError
+from magicalimport.compat import FileNotFoundError
 from magicalimport.compat import _create_module
 from magicalimport.compat import import_module as import_module_original
 

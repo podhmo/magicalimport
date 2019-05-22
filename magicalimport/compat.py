@@ -4,6 +4,7 @@ __ALL__ = [
     "import_module",
     "_create_module",
     "ModuleNotFoundError",
+    "FileNotFoundError",
 ]
 
 try:
@@ -11,6 +12,11 @@ try:
 except NameError:
     # for <3.6
     class ModuleNotFoundError(ImportError):
+        pass
+try:
+    FileNotFoundError = FileNotFoundError
+except NameError:
+    class FileNotFoundError(OSError):
         pass
 
 try:
