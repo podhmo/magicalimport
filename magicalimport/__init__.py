@@ -45,8 +45,13 @@ def import_symbol(sym, here=None, sep=":", ns=None, silent=False):
     module_path, fn_name = sym.rsplit(sep, 2)
     try:
         module = import_module(module_path, here=here, sep=sep)
-        return getattr(module, fn_name)
-    except (ImportError, AttributeError) as e:
+    except ImportError as e:  # ModuleNotFoundError is subclass of ImportError
         if not silent:
             sys.stderr.write("could not import {!r}\n{}\n".format(sym, e))
         raise
+    try:
+        return getattr(module, fn_name)
+    except AttributeError as e:
+        if not silent:
+            sys.stderr.write("could not import {!r}\n{}\n".format(sym, e))
+        raise ImportError(e) from None
