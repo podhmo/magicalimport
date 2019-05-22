@@ -3,7 +3,15 @@ import sys
 __ALL__ = [
     "import_module",
     "_create_module",
+    "ModuleNotFoundError",
 ]
+
+try:
+    ModuleNotFoundError
+except NameError:
+    # for <3.6
+    class ModuleNotFoundError(ImportError):
+        pass
 
 try:
     from importlib import import_module  # NOQA
