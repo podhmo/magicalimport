@@ -7,7 +7,7 @@ __ALL__ = [
 ]
 
 try:
-    ModuleNotFoundError
+    ModuleNotFoundError = ModuleNotFoundError
 except NameError:
     # for <3.6
     class ModuleNotFoundError(ImportError):
