@@ -30,7 +30,7 @@ testing_extras = tests_require + [
 ]
 
 setup(name='magicalimport',
-      version='0.4.0',
+      version='0.5.0',
       description='importing a module by physical file path',
       long_description=README + '\n\n' + CHANGES,
       classifiers=[
