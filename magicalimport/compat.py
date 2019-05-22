@@ -7,21 +7,6 @@ __ALL__ = [
     "FileNotFoundError",
 ]
 
-try:
-    ModuleNotFoundError = ModuleNotFoundError
-except NameError:
-    # for <3.6
-    class ModuleNotFoundError(ImportError):
-        fake = True
-
-
-try:
-    FileNotFoundError = FileNotFoundError
-except NameError:
-
-    class FileNotFoundError(OSError):
-        fake = True
-
 
 try:
     from importlib import import_module  # NOQA
@@ -77,3 +62,24 @@ except ImportError:
 
         def _create_module(module_id, path):
             return machinery.SourceFileLoader(module_id, path).load_module()
+
+
+try:
+    ModuleNotFoundError = ModuleNotFoundError
+except NameError:
+    try:
+        from importlib2 import ModuleNotFoundError
+
+        ModuleNotFoundError = ModuleNotFoundError
+    except ImportError:
+        # for <3.6
+        class ModuleNotFoundError(ImportError):
+            fake = True
+
+
+try:
+    FileNotFoundError = FileNotFoundError
+except NameError:
+
+    class FileNotFoundError(OSError):
+        fake = True
