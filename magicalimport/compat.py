@@ -13,11 +13,15 @@ except NameError:
     # for <3.6
     class ModuleNotFoundError(ImportError):
         pass
+
+
 try:
     FileNotFoundError = FileNotFoundError
 except NameError:
+
     class FileNotFoundError(OSError):
         pass
+
 
 try:
     from importlib import import_module  # NOQA
@@ -31,6 +35,7 @@ try:
         sys.modules[module_id] = module
         return module
 
+
 except ImportError:
     try:
         # for 3.3, 3.4
@@ -38,14 +43,16 @@ except ImportError:
 
         def _create_module(module_id, path):
             return machinery.SourceFileLoader(module_id, path).load_module()
+
     except ImportError:
         # patching for import machinery
         # https://bitbucket.org/ericsnowcurrently/importlib2/issues/8/unable-to-import-importlib2machinery
         import importlib2._fixers as f
+
         fix_importlib_original = f.fix_importlib
 
         def fix_importlib(ns):
-            if ns["__name__"] == 'importlib2.machinery':
+            if ns["__name__"] == "importlib2.machinery":
 
                 class _LoaderBasics:
                     load_module = object()

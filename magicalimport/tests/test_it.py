@@ -7,6 +7,7 @@ here = os.path.dirname(os.path.abspath(__file__))
 class Tests(unittest.TestCase):
     def _callFUT(self, *args, **kwargs):
         from magicalimport import import_from_physical_path
+
         return import_from_physical_path(*args, **kwargs)
 
     def test_impot_from_physical_path(self):
@@ -15,6 +16,7 @@ class Tests(unittest.TestCase):
         self.assertEqual(foo.name, "foo")
 
         from foo2 import name
+
         self.assertEqual(name, "foo")
 
     def test_impot_from_physical_path__with_here_option(self):
@@ -22,10 +24,12 @@ class Tests(unittest.TestCase):
         self.assertEqual(foo.name, "foo")
 
         from foo2 import name
+
         self.assertEqual(name, "foo")
 
     def test_expose_all_members(self):
         from magicalimport import expose_all_members
+
         path = os.path.join(here, "../../examples/a/b/c/foo.py")
         foo = self._callFUT(path, as_="foo3")
 
@@ -37,6 +41,7 @@ class Tests(unittest.TestCase):
 
     def test_expose_members(self):
         from magicalimport import expose_members
+
         path = os.path.join(here, "../../examples/a/b/c/foo.py")
         foo = self._callFUT(path, as_="foo4")
 
