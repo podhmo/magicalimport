@@ -3,6 +3,13 @@ import sys
 from magicalimport.compat import _create_module
 from magicalimport.compat import import_module as import_module_original
 
+try:
+    ModuleNotFoundError
+except NameError:
+    # for <3.6
+    class ModuleNotFoundError(ImportError):
+        pass
+
 
 def expose_all_members(module, globals_=None, _depth=2):
     members = {k: v for k, v in module.__dict__.items() if not k.startswith("_")}
@@ -28,7 +35,7 @@ def import_from_physical_path(path, as_=None, here=None):
     try:
         return _create_module(module_id, path)
     except FileNotFoundError as e:
-        raise ModuleNotFoundError(e) from None
+        raise ModuleNotFoundError(e)
 
 
 def import_module(module_path, here=None, sep=":"):
@@ -54,4 +61,4 @@ def import_symbol(sym, here=None, sep=":", ns=None, silent=False):
     except AttributeError as e:
         if not silent:
             sys.stderr.write("could not import {!r}\n{}\n".format(sym, e))
-        raise ImportError(e) from None
+        raise ImportError(e)
