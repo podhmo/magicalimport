@@ -29,7 +29,7 @@ def import_from_physical_path(path, as_=None, here=None):
         return sys.modules[module_id]
     try:
         return _create_module(module_id, path)
-    except FileNotFoundError as e:
+    except (FileNotFoundError, OSError) as e:
         raise ModuleNotFoundError(e)
 
 
