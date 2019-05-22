@@ -38,7 +38,12 @@ def import_module(module_path, here=None, sep=":"):
     if ext == ".py":
         return import_from_physical_path(module_path, here=here)
     else:
-        return import_module_original(module_path)
+        try:
+            return import_module_original(module_path)
+        except ImportError as e:
+            if ImportError.__module__ == ModuleNotFoundError.__module__:
+                raise
+            raise ModuleNotFoundError(e)
 
 
 def import_symbol(sym, here=None, sep=":", ns=None, silent=False):
@@ -47,13 +52,13 @@ def import_symbol(sym, here=None, sep=":", ns=None, silent=False):
     module_path, fn_name = sym.rsplit(sep, 2)
     try:
         module = import_module(module_path, here=here, sep=sep)
-    except ImportError as e:  # ModuleNotFoundError is subclass of ImportError
+    except (
+        ImportError,
+        ModuleNotFoundError,
+    ) as e:  # ModuleNotFoundError is subclass of ImportError
         if not silent:
             sys.stderr.write("could not import {!r}\n{}\n".format(sym, e))
-
-        if getattr(ModuleNotFoundError, "fake", False):
-            raise
-        raise ModuleNotFoundError(e)
+        raise
     try:
         return getattr(module, fn_name)
     except AttributeError as e:
