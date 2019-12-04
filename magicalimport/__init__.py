@@ -4,6 +4,7 @@ from magicalimport.compat import ModuleNotFoundError
 from magicalimport.compat import FileNotFoundError
 from magicalimport.compat import _create_module
 from magicalimport.compat import import_module as import_module_original
+import magicalimport._fake as FAKE_MODULE
 
 
 def expose_all_members(module, globals_=None, _depth=2):
@@ -25,8 +26,21 @@ def import_from_physical_path(path, as_=None, here=None):
         here = os.path.normpath(os.path.abspath(here))
         path = os.path.join(here, path)
     module_id = as_ or path.replace("/", "_").rsplit(".py", 1)[0]
+
+    if module_id.endswith("___init__"):
+        module_id = module_id[: -len("___init__")]
+
     if module_id in sys.modules:
-        return sys.modules[module_id]
+        m = sys.modules[module_id]
+        assert m != FAKE_MODULE  # xxx
+        return m
+
+    if "." in module_id:
+        parent_module_id = module_id
+        while "." in parent_module_id:
+            parent_module_id = parent_module_id.rsplit(".", 1)[0]
+            sys.modules[parent_module_id] = FAKE_MODULE
+
     try:
         return _create_module(module_id, path)
     except (FileNotFoundError, OSError) as e:
