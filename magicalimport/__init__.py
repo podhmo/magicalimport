@@ -20,31 +20,60 @@ def expose_members(module, members, globals_=None, _depth=1):
     return globals_
 
 
-def import_from_physical_path(path, as_=None, here=None):
+def import_from_physical_path(path, as_=None, here=None, SEP="@", inner=False):
     if here is not None:
         here = here if os.path.isdir(here) else os.path.dirname(here)
         here = os.path.normpath(os.path.abspath(here))
-        path = os.path.join(here, path)
-    module_id = as_ or path.replace("/", "_").rsplit(".py", 1)[0]
+    else:
+        here = here or os.getcwd()
 
-    if module_id.endswith("___init__"):
-        module_id = module_id[: -len("___init__")]
+    path = os.path.join(here, path)
 
-    if module_id in sys.modules:
-        m = sys.modules[module_id]
-        assert m != FAKE_MODULE  # xxx
-        return m
+    module_id = as_ or path.replace(os.sep, SEP).rsplit(".py", 1)[0]
+    if module_id.endswith(SEP + "__init__"):
+        module_id = module_id[: -len(SEP + "_init__")]
 
     if "." in module_id:
-        parent_module_id = module_id
-        while "." in parent_module_id:
-            parent_module_id = parent_module_id.rsplit(".", 1)[0]
-            sys.modules[parent_module_id] = FAKE_MODULE
+        module_id = _prepare_parent_modules(module_id, here=here, SEP=SEP, inner=inner)
 
     try:
         return _create_module(module_id, path)
     except (FileNotFoundError, OSError) as e:
         raise ModuleNotFoundError(e)
+
+
+def _prepare_parent_modules(module_id, here, SEP, inner):
+    prefix, suffix = module_id.rsplit(".", 1)
+    if not inner:
+        module_id = prefix + suffix.replace(SEP, ".")
+
+    if suffix.startswith(SEP):
+        suffix = suffix[len(SEP) :]
+
+    nodes = suffix.split(SEP)
+    candidates = [""]
+    candidates.extend([os.sep.join(nodes[:i]) for i in range(1, len(nodes))])
+
+    for subpath in candidates:
+        if subpath == "":
+            parent_module_id = prefix
+        else:
+            parent_module_id = ".".join([prefix, subpath.replace(os.sep, ".")])
+
+        if parent_module_id in sys.modules:
+            continue
+
+        if os.path.exists(os.path.join(here, subpath, "__init__.py")):
+            import_from_physical_path(
+                os.path.join(subpath, "__init__.py"),
+                here=here,
+                as_=parent_module_id,
+                inner=True,
+            )
+            assert parent_module_id in sys.modules, parent_module_id
+        else:
+            sys.modules[parent_module_id] = FAKE_MODULE
+    return module_id
 
 
 def import_module(module_path, here=None, sep=":"):
