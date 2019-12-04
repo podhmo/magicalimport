@@ -1,2 +1,1 @@
-_home_nao_venvs_my_magicalimport_examples_03relative-import_._conf
 foo
