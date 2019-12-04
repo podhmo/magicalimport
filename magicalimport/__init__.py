@@ -1,10 +1,29 @@
 import os.path
 import sys
+import logging
 from magicalimport.compat import ModuleNotFoundError
 from magicalimport.compat import FileNotFoundError
 from magicalimport.compat import _create_module
 from magicalimport.compat import import_module as import_module_original
 import magicalimport._fake as FAKE_MODULE
+
+logger = logging.getLogger(__name__)
+
+
+def create_module(module_id, path, fake=False):
+    module_id = module_id.rstrip(".").rstrip(SEP)
+
+    if module_id in sys.modules:
+        return sys.modules[module_id]
+
+    logger.debug(
+        "_create_module %r, where=%r, fake=%s", module_id, os.path.normpath(path), fake
+    )
+
+    if fake:
+        sys.modules[module_id] = FAKE_MODULE
+    else:
+        return _create_module(module_id, path)
 
 
 def expose_all_members(module, globals_=None, _depth=2):
@@ -20,7 +39,10 @@ def expose_members(module, members, globals_=None, _depth=1):
     return globals_
 
 
-def import_from_physical_path(path, as_=None, here=None, SEP="@", inner=False):
+SEP = "@"
+
+
+def import_from_physical_path(path, as_=None, here=None, inner=False):
     if here is not None:
         here = here if os.path.isdir(here) else os.path.dirname(here)
         here = os.path.normpath(os.path.abspath(here))
@@ -34,15 +56,14 @@ def import_from_physical_path(path, as_=None, here=None, SEP="@", inner=False):
         module_id = module_id[: -len(SEP + "_init__")]
 
     if "." in module_id:
-        module_id = _prepare_parent_modules(module_id, here=here, SEP=SEP, inner=inner)
-
+        module_id = _prepare_parent_modules(module_id, here=here, inner=inner)
     try:
-        return _create_module(module_id, path)
+        return create_module(module_id, path)
     except (FileNotFoundError, OSError) as e:
         raise ModuleNotFoundError(e)
 
 
-def _prepare_parent_modules(module_id, here, SEP, inner):
+def _prepare_parent_modules(module_id, here, inner):
     prefix, suffix = module_id.rsplit(".", 1)
     if not inner:
         module_id = prefix + suffix.replace(SEP, ".")
@@ -55,6 +76,7 @@ def _prepare_parent_modules(module_id, here, SEP, inner):
     candidates.extend([os.sep.join(nodes[:i]) for i in range(1, len(nodes))])
 
     for subpath in candidates:
+        # normalize
         if subpath == "":
             parent_module_id = prefix
         else:
@@ -63,16 +85,13 @@ def _prepare_parent_modules(module_id, here, SEP, inner):
         if parent_module_id in sys.modules:
             continue
 
-        if os.path.exists(os.path.join(here, subpath, "__init__.py")):
+        filepath = os.path.join(subpath, "__init__.py")
+        if os.path.exists(os.path.join(here, filepath)):
             import_from_physical_path(
-                os.path.join(subpath, "__init__.py"),
-                here=here,
-                as_=parent_module_id,
-                inner=True,
+                filepath, here=here, as_=parent_module_id, inner=True
             )
-            assert parent_module_id in sys.modules, parent_module_id
         else:
-            sys.modules[parent_module_id] = FAKE_MODULE
+            create_module(parent_module_id, filepath, fake=True)
     return module_id
 
 

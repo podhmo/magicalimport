@@ -1,6 +1,6 @@
 import sys
 
-__ALL__ = [
+__all__ = [
     "import_module",
     "_create_module",
     "ModuleNotFoundError",
