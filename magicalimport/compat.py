@@ -16,8 +16,8 @@ try:
     def _create_module(module_id, path):
         spec = spec_from_file_location(module_id, path)
         module = module_from_spec(spec)
-        spec.loader.exec_module(module)
         sys.modules[module_id] = module
+        spec.loader.exec_module(module)
         return module
 
 
