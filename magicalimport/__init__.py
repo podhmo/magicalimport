@@ -48,7 +48,9 @@ def import_from_physical_path(path, as_=None, here=None):
     if module_id in sys.modules:
         return sys.modules[module_id]
 
-    for syspath in [os.getcwd(), *sys.path]:
+    syspath_list = [os.getcwd()]
+    syspath_list.extend(sys.path)
+    for syspath in syspath_list:
         if not path.startswith(syspath):
             continue
 
