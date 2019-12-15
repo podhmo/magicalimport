@@ -1,3 +1,7 @@
+0.7.3
+
+- skip needless __init__.py creation, in some cases
+
 0.7.2
 
 - fix directly import module handling is not enough, now, treated as a same module
