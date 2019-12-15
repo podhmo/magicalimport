@@ -1,3 +1,7 @@
+0.7.1
+
+- fix permission error, and same file, treated as same module
+
 0.7.0
 
 - fix same file, treated as same module
