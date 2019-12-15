@@ -37,7 +37,7 @@ _FAILED = set()  # singleton
 
 
 def import_from_physical_path(path, as_=None, here=None):
-    global _failed
+    global _FAILED
 
     if here is not None:
         here = here if os.path.isdir(here) else os.path.dirname(here)
@@ -48,22 +48,28 @@ def import_from_physical_path(path, as_=None, here=None):
     if module_id in sys.modules:
         return sys.modules[module_id]
 
-    sys_path_list = [os.getcwd()]
-    sys_path_list.extend(sys.path)
     guess_path = path.replace("/__init__.py", "")
 
-    for sys_path in sys_path_list:
+    for sys_path in sys.path:
         if not guess_path.startswith(sys_path):
             continue
-        guessed_module = guess_path[len(sys_path) :].lstrip("/").rsplit(".py", 1)[0]
+
+        guessed_module = (
+            guess_path[len(sys_path) :]
+            .lstrip("/")
+            .rsplit(".py", 1)[0]
+            .replace("/", ".")
+        )
         if guessed_module in _FAILED:
             continue
 
         try:
-            return import_module_original(guessed_module)
-        except ImportError:
+            m = import_module_original(guessed_module)
+            return m
+        except ModuleNotFoundError:
             _FAILED.add(guessed_module)
-            pass
+        except ImportError:
+            raise
 
     if "." in module_id and as_ is None:
         parent_module_id = module_id.rsplit(".")[0]
