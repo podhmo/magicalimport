@@ -69,7 +69,7 @@ def import_from_physical_path(path, as_=None, here=None):
         except ModuleNotFoundError:
             _FAILED.add(guessed_module)
         except ImportError as e:
-            if getattr(ModuleNotFoundError, "fake", False):
+            if ImportError.__module__ == ModuleNotFoundError.__module__:
                 if str(e).startswith("No module named"):
                     _FAILED.add(guessed_module)
                     continue
