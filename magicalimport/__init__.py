@@ -33,13 +33,32 @@ def _module_id_from_path(path):
     return module_id
 
 
+_FAILED = set()  # singleton
+
+
 def import_from_physical_path(path, as_=None, here=None):
+    global _failed
+
     if here is not None:
         here = here if os.path.isdir(here) else os.path.dirname(here)
         here = os.path.abspath(here)
         path = os.path.normpath(os.path.join(here, path))
 
     module_id = as_ or _module_id_from_path(path)
+
+    for syspath in sys.path:
+        if not path.startswith(syspath):
+            continue
+
+        guessed_module = path[len(syspath) :].lstrip("/").rsplit(".py", 1)[0]
+        if guessed_module in _FAILED:
+            continue
+
+        try:
+            return import_module_original(guessed_module)
+        except ImportError:
+            _FAILED.add(guessed_module)
+            pass
 
     if "." in module_id and as_ is None:
         parent_module_id = module_id.rsplit(".")[0]
