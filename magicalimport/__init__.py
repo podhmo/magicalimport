@@ -24,7 +24,6 @@ def expose_members(module, members, globals_=None, _depth=1):
 
 def _module_id_from_path(path):
     logger.debug("	-> %s (path)", path)
-    path = os.path.normpath(path)
 
     dirname = os.path.dirname(path)
     basename = os.path.basename(path)
@@ -38,7 +37,7 @@ def import_from_physical_path(path, as_=None, here=None):
     if here is not None:
         here = here if os.path.isdir(here) else os.path.dirname(here)
         here = os.path.abspath(here)
-        path = os.path.join(here, path)
+        path = os.path.normpath(os.path.join(here, path))
 
     module_id = as_ or _module_id_from_path(path)
 
