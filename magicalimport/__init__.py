@@ -1,9 +1,12 @@
+import logging
 import os.path
 import sys
 from magicalimport.compat import ModuleNotFoundError
 from magicalimport.compat import FileNotFoundError
 from magicalimport.compat import _create_module
 from magicalimport.compat import import_module as import_module_original
+
+logger = logging.getLogger(__name__)
 
 
 def expose_all_members(module, globals_=None, _depth=2):
@@ -20,14 +23,14 @@ def expose_members(module, members, globals_=None, _depth=1):
 
 
 def _module_id_from_path(path):
-    # print("	->", path, file=sys.stderr)
+    logger.debug("	-> %s (path)", path)
     path = os.path.normpath(path)
 
     dirname = os.path.dirname(path)
     basename = os.path.basename(path)
 
     module_id = "{}.{}".format(dirname.replace("/", "_"), basename.rsplit(".py", 1)[0])
-    # print("	<-", module_id, file=sys.stderr)
+    logger.debug("	<- %s (module_id)", module_id)
     return module_id
 
 
@@ -47,15 +50,23 @@ def import_from_physical_path(path, as_=None, here=None):
                 _create_module(parent_module_id, init_py)
             else:
                 # TODO: don't have to create __init__.py
-                with open(init_py, "w"):
-                    pass
-                _create_module(parent_module_id, init_py)
+                try:
+                    with open(init_py, "w"):
+                        pass
+                    _create_module(parent_module_id, init_py)
+                    # # xxx: using fake module as parent module
+                    # import magicalimport._fake as fake_module
 
-                # # xxx: using fake module as parent module
-                # import magicalimport._fake as fake_module
-
-                # parent_module = _create_module(parent_module_id, fake_module.__file__)
-                # parent_module.__file__ = init_py
+                    # parent_module = _create_module(parent_module_id, fake_module.__file__)
+                    # parent_module.__file__ = init_py
+                except PermissionError as e:
+                    module_id = module_id.replace(".", "_")
+                    logger.warn(
+                        "open %s, cannot accessable (%r). new module_id is %r",
+                        init_py,
+                        e,
+                        module_id,
+                    )
 
     if module_id in sys.modules:
         return sys.modules[module_id]
