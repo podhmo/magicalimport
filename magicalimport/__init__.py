@@ -48,13 +48,14 @@ def import_from_physical_path(path, as_=None, here=None):
     if module_id in sys.modules:
         return sys.modules[module_id]
 
-    syspath_list = [os.getcwd()]
-    syspath_list.extend(sys.path)
-    for syspath in syspath_list:
-        if not path.startswith(syspath):
-            continue
+    sys_path_list = [os.getcwd()]
+    sys_path_list.extend(sys.path)
+    guess_path = path.replace("/__init__.py", "")
 
-        guessed_module = path[len(syspath) :].lstrip("/").rsplit(".py", 1)[0]
+    for sys_path in sys_path_list:
+        if not guess_path.startswith(sys_path):
+            continue
+        guessed_module = guess_path[len(sys_path) :].lstrip("/").rsplit(".py", 1)[0]
         if guessed_module in _FAILED:
             continue
 
