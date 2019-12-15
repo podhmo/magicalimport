@@ -42,7 +42,8 @@ def import_from_physical_path(path, as_=None, here=None):
     if here is not None:
         here = here if os.path.isdir(here) else os.path.dirname(here)
         here = os.path.abspath(here)
-        path = os.path.normpath(os.path.join(here, path))
+        path = os.path.join(here, path)
+    path = os.path.normpath(os.path.abspath(path))
 
     module_id = as_ or _module_id_from_path(path)
     if module_id in sys.modules:
@@ -50,30 +51,31 @@ def import_from_physical_path(path, as_=None, here=None):
 
     guess_path = path.replace("/__init__.py", "")
 
-    for sys_path in sys.path:
-        if not guess_path.startswith(sys_path):
-            continue
+    if as_ is None:
+        for sys_path in sys.path:
+            if not guess_path.startswith(sys_path):
+                continue
 
-        guessed_module = (
-            guess_path[len(sys_path) :]
-            .lstrip("/")
-            .rsplit(".py", 1)[0]
-            .replace("/", ".")
-        )
-        if guessed_module in _FAILED:
-            continue
+            guessed_module = (
+                guess_path[len(sys_path) :]
+                .lstrip("/")
+                .rsplit(".py", 1)[0]
+                .replace("/", ".")
+            )
+            if guessed_module in _FAILED:
+                continue
 
-        try:
-            m = import_module_original(guessed_module)
-            return m
-        except ModuleNotFoundError:
-            _FAILED.add(guessed_module)
-        except ImportError as e:
-            if getattr(ModuleNotFoundError, "fake", False):
-                if str(e).startswith("No module named"):
-                    _FAILED.add(guessed_module)
-                    continue
-            raise
+            try:
+                m = import_module_original(guessed_module)
+                return m
+            except ModuleNotFoundError:
+                _FAILED.add(guessed_module)
+            except ImportError as e:
+                if ImportError.__module__ != ModuleNotFoundError.__module__:
+                    if str(e).startswith("No module named"):
+                        _FAILED.add(guessed_module)
+                        continue
+                raise
 
     if "." in module_id and as_ is None:
         parent_module_id = module_id.rsplit(".")[0]
