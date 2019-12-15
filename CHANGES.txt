@@ -1,10 +1,14 @@
+0.7.2
+
+- fix directly import module handling is not enough, now, treated as a same module
+
 0.7.1
 
-- fix permission error, and same file, treated as same module
+- fix permission error, and same file, treated as a same module
 
 0.7.0
 
-- fix same file, treated as same module
+- fix same file, treated as a same module
 
 0.6.0
 
