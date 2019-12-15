@@ -45,8 +45,10 @@ def import_from_physical_path(path, as_=None, here=None):
         path = os.path.normpath(os.path.join(here, path))
 
     module_id = as_ or _module_id_from_path(path)
+    if module_id in sys.modules:
+        return sys.modules[module_id]
 
-    for syspath in sys.path:
+    for syspath in [os.getcwd(), *sys.path]:
         if not path.startswith(syspath):
             continue
 
@@ -86,8 +88,6 @@ def import_from_physical_path(path, as_=None, here=None):
                         module_id,
                     )
 
-    if module_id in sys.modules:
-        return sys.modules[module_id]
     try:
         return _create_module(module_id, path)
     except (FileNotFoundError, OSError) as e:
@@ -97,7 +97,9 @@ def import_from_physical_path(path, as_=None, here=None):
 def import_module(module_path, here=None, sep=":"):
     _, ext = os.path.splitext(module_path)
     if ext == ".py":
-        return import_from_physical_path(module_path, here=here)
+        m = import_from_physical_path(module_path, here=here)
+        logger.debug("import module %s", m)
+        return m
     else:
         try:
             return import_module_original(module_path)
