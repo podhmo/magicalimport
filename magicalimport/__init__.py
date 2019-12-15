@@ -1,9 +1,12 @@
+import logging
 import os.path
 import sys
 from magicalimport.compat import ModuleNotFoundError
 from magicalimport.compat import FileNotFoundError
 from magicalimport.compat import _create_module
 from magicalimport.compat import import_module as import_module_original
+
+logger = logging.getLogger(__name__)
 
 
 def expose_all_members(module, globals_=None, _depth=2):
@@ -20,24 +23,47 @@ def expose_members(module, members, globals_=None, _depth=1):
 
 
 def _module_id_from_path(path):
-    # print("	->", path, file=sys.stderr)
-    path = os.path.normpath(path)
+    logger.debug("	-> %s (path)", path)
 
     dirname = os.path.dirname(path)
     basename = os.path.basename(path)
 
     module_id = "{}.{}".format(dirname.replace("/", "_"), basename.rsplit(".py", 1)[0])
-    # print("	<-", module_id, file=sys.stderr)
+    logger.debug("	<- %s (module_id)", module_id)
     return module_id
 
 
+_FAILED = set()  # singleton
+
+
 def import_from_physical_path(path, as_=None, here=None):
+    global _failed
+
     if here is not None:
         here = here if os.path.isdir(here) else os.path.dirname(here)
         here = os.path.abspath(here)
-        path = os.path.join(here, path)
+        path = os.path.normpath(os.path.join(here, path))
 
     module_id = as_ or _module_id_from_path(path)
+    if module_id in sys.modules:
+        return sys.modules[module_id]
+
+    sys_path_list = [os.getcwd()]
+    sys_path_list.extend(sys.path)
+    guess_path = path.replace("/__init__.py", "")
+
+    for sys_path in sys_path_list:
+        if not guess_path.startswith(sys_path):
+            continue
+        guessed_module = guess_path[len(sys_path) :].lstrip("/").rsplit(".py", 1)[0]
+        if guessed_module in _FAILED:
+            continue
+
+        try:
+            return import_module_original(guessed_module)
+        except ImportError:
+            _FAILED.add(guessed_module)
+            pass
 
     if "." in module_id and as_ is None:
         parent_module_id = module_id.rsplit(".")[0]
@@ -47,18 +73,24 @@ def import_from_physical_path(path, as_=None, here=None):
                 _create_module(parent_module_id, init_py)
             else:
                 # TODO: don't have to create __init__.py
-                with open(init_py, "w"):
-                    pass
-                _create_module(parent_module_id, init_py)
+                try:
+                    with open(init_py, "w"):
+                        pass
+                    _create_module(parent_module_id, init_py)
+                    # # xxx: using fake module as parent module
+                    # import magicalimport._fake as fake_module
 
-                # # xxx: using fake module as parent module
-                # import magicalimport._fake as fake_module
+                    # parent_module = _create_module(parent_module_id, fake_module.__file__)
+                    # parent_module.__file__ = init_py
+                except PermissionError as e:
+                    module_id = module_id.replace(".", "_")
+                    logger.warn(
+                        "open %s, cannot accessable (%r). new module_id is %r",
+                        init_py,
+                        e,
+                        module_id,
+                    )
 
-                # parent_module = _create_module(parent_module_id, fake_module.__file__)
-                # parent_module.__file__ = init_py
-
-    if module_id in sys.modules:
-        return sys.modules[module_id]
     try:
         return _create_module(module_id, path)
     except (FileNotFoundError, OSError) as e:
@@ -68,7 +100,9 @@ def import_from_physical_path(path, as_=None, here=None):
 def import_module(module_path, here=None, sep=":"):
     _, ext = os.path.splitext(module_path)
     if ext == ".py":
-        return import_from_physical_path(module_path, here=here)
+        m = import_from_physical_path(module_path, here=here)
+        logger.debug("import module %s", m)
+        return m
     else:
         try:
             return import_module_original(module_path)
