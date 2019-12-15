@@ -42,7 +42,8 @@ def import_from_physical_path(path, as_=None, here=None):
     if here is not None:
         here = here if os.path.isdir(here) else os.path.dirname(here)
         here = os.path.abspath(here)
-        path = os.path.normpath(os.path.join(here, path))
+        path = os.path.join(here, path)
+    path = os.path.normpath(os.path.abspath(path))
 
     module_id = as_ or _module_id_from_path(path)
     if module_id in sys.modules:
