@@ -16,7 +16,7 @@ def expose_all_members(module, globals_=None, _depth=2):
 
 def expose_members(module, members, globals_=None, _depth=1):
     if globals_ is None:
-        frame = sys._getframe(_depth)
+        frame = sys._getframe(_depth)  # xxx: black magic
         globals_ = frame.f_globals
     globals_.update({k: module.__dict__[k] for k in members})
     return globals_
@@ -36,13 +36,17 @@ def _module_id_from_path(path):
 _FAILED = set()  # singleton
 
 
-def import_from_physical_path(path, as_=None, here=None):
+def import_from_physical_path(path, as_=None, here=None, _depth=1):
     global _FAILED
 
+    if here is None and _depth > 0:
+        frame = sys._getframe(_depth)  # xxx: black magic
+        here = frame.f_globals["__file__"]
     if here is not None:
         here = here if os.path.isdir(here) else os.path.dirname(here)
         here = os.path.abspath(here)
         path = os.path.join(here, path)
+
     path = os.path.normpath(os.path.abspath(path))
 
     module_id = as_ or _module_id_from_path(path)
@@ -109,10 +113,10 @@ def import_from_physical_path(path, as_=None, here=None):
         raise ModuleNotFoundError(e)
 
 
-def import_module(module_path, here=None, sep=":"):
+def import_module(module_path, here=None, sep=":", _depth=2):
     _, ext = os.path.splitext(module_path)
     if ext == ".py":
-        m = import_from_physical_path(module_path, here=here)
+        m = import_from_physical_path(module_path, here=here, _depth=_depth)
         logger.debug("import module %s", m)
         return m
     else:
@@ -124,12 +128,12 @@ def import_module(module_path, here=None, sep=":"):
             raise ModuleNotFoundError(e)
 
 
-def import_symbol(sym, here=None, sep=":", ns=None, silent=False):
+def import_symbol(sym, here=None, sep=":", ns=None, silent=False, _depth=3):
     if ns is not None and sep not in sym:
         sym = "{}{}{}".format(ns, sep, sym)
     module_path, fn_name = sym.rsplit(sep, 2)
     try:
-        module = import_module(module_path, here=here, sep=sep)
+        module = import_module(module_path, here=here, sep=sep, _depth=_depth)
     except (
         ImportError,
         ModuleNotFoundError,
