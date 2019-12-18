@@ -1,3 +1,8 @@
+0.8.0
+
+- default behaviour is changed, from now, if here option is omitted, treated as `here=__file__` on caller module.
+- ( previous behaviour is `here=os.getcwd()` )
+
 0.7.3
 
 - skip needless __init__.py creation, in some cases
