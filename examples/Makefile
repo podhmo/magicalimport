@@ -1,4 +1,4 @@
-default: 00 01 02 03 04 05
+default: 00 01 02 03 04 05 06
 
 00:
 	python $@*/main.py |& tee $$(echo $@*/)output.txt
