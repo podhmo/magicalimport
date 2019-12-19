@@ -1,3 +1,7 @@
+0.8.1
+
+- cwd option
+
 0.8.0
 
 - default behaviour is changed, from now, if here option is omitted, treated as `here=__file__` on caller module.
