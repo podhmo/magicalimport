@@ -36,12 +36,15 @@ def _module_id_from_path(path):
 _FAILED = set()  # singleton
 
 
-def import_from_physical_path(path, as_=None, here=None, _depth=1):
+def import_from_physical_path(path, as_=None, here=None, _depth=1, cwd=False):
     global _FAILED
 
-    if here is None and _depth > 0:
-        frame = sys._getframe(_depth)  # xxx: black magic
-        here = frame.f_globals["__file__"]
+    if here is None:
+        if cwd:
+            here = os.getcwd()
+        elif _depth > 0:
+            frame = sys._getframe(_depth)  # xxx: black magic
+            here = frame.f_globals["__file__"]
     if here is not None:
         here = here if os.path.isdir(here) else os.path.dirname(here)
         here = os.path.abspath(here)
@@ -106,17 +109,16 @@ def import_from_physical_path(path, as_=None, here=None, _depth=1):
                         e,
                         module_id,
                     )
-
     try:
         return _create_module(module_id, path)
     except (FileNotFoundError, OSError) as e:
         raise ModuleNotFoundError(e)
 
 
-def import_module(module_path, here=None, sep=":", _depth=2):
+def import_module(module_path, here=None, sep=":", _depth=2, cwd=False):
     _, ext = os.path.splitext(module_path)
     if ext == ".py":
-        m = import_from_physical_path(module_path, here=here, _depth=_depth)
+        m = import_from_physical_path(module_path, here=here, _depth=_depth, cwd=cwd)
         logger.debug("import module %s", m)
         return m
     else:
@@ -128,12 +130,12 @@ def import_module(module_path, here=None, sep=":", _depth=2):
             raise ModuleNotFoundError(e)
 
 
-def import_symbol(sym, here=None, sep=":", ns=None, silent=False, _depth=3):
+def import_symbol(sym, here=None, sep=":", ns=None, silent=False, _depth=3, cwd=False):
     if ns is not None and sep not in sym:
         sym = "{}{}{}".format(ns, sep, sym)
     module_path, fn_name = sym.rsplit(sep, 2)
     try:
-        module = import_module(module_path, here=here, sep=sep, _depth=_depth)
+        module = import_module(module_path, here=here, sep=sep, _depth=_depth, cwd=cwd)
     except (
         ImportError,
         ModuleNotFoundError,
