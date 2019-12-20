@@ -36,7 +36,7 @@ def _module_id_from_path(path):
 _FAILED = set()  # singleton
 
 
-def import_from_physical_path(path, as_=None, here=None, _depth=1, cwd=False):
+def import_from_physical_path(path, as_=None, here=None, _depth=1, cwd=True):
     global _FAILED
 
     if here is None:
