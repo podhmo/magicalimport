@@ -45,6 +45,10 @@ def import_from_physical_path(path, as_=None, here=None, _depth=1, cwd=True):
         elif _depth > 0:
             frame = sys._getframe(_depth)  # xxx: black magic
             here = frame.f_globals["__file__"]
+        else:
+            raise ValueError(
+                "invalid option found _depth={}, cwd={}".format(_depth, cwd)
+            )
     if here is not None:
         here = here if os.path.isdir(here) else os.path.dirname(here)
         here = os.path.abspath(here)
