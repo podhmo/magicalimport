@@ -119,7 +119,7 @@ def import_from_physical_path(path, as_=None, here=None, _depth=1, cwd=True):
         raise ModuleNotFoundError(e)
 
 
-def import_module(module_path, here=None, sep=":", _depth=2, cwd=False):
+def import_module(module_path, here=None, sep=":", _depth=2, cwd=True):
     _, ext = os.path.splitext(module_path)
     if ext == ".py":
         m = import_from_physical_path(module_path, here=here, _depth=_depth, cwd=cwd)
@@ -134,7 +134,7 @@ def import_module(module_path, here=None, sep=":", _depth=2, cwd=False):
             raise ModuleNotFoundError(e)
 
 
-def import_symbol(sym, here=None, sep=":", ns=None, silent=False, _depth=3, cwd=False):
+def import_symbol(sym, here=None, sep=":", ns=None, silent=False, _depth=3, cwd=True):
     if ns is not None and sep not in sym:
         sym = "{}{}{}".format(ns, sep, sym)
     module_path, fn_name = sym.rsplit(sep, 2)
