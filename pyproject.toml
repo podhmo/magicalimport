@@ -1,0 +1,56 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "magicalimport"
+# Version will be read dynamically, but if not possible, use the content of the VERSION file.
+# Ensure you read the VERSION file and place its content here.
+# For now, let's assume the version is "0.9.0" as a placeholder if reading dynamically is complex for you.
+# The actual VERSION file content should be used.
+dynamic = ["version"]
+description = "importing a module by physical file path"
+readme = "README.rst"
+requires-python = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*" # Assuming support for 2.7 and 3.5+
+license = { text = "MIT License" } # Assuming MIT based on common practice, will verify if LICENSE file exists
+authors = [
+    { name = "podhmo", email = "ababjam61+github@gmail.com" }
+]
+keywords = ["import", "physical address", "file path"]
+classifiers = [
+    "Programming Language :: Python",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: 2",
+    "Programming Language :: Python :: 2.7",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.5",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+]
+
+dependencies = [
+    'importlib2; python_version < "3"',
+]
+
+[project.urls]
+Homepage = "https://github.com/podhmo/magicalimport"
+
+[project.optional-dependencies]
+testing = [] # No specific testing dependencies listed beyond test_suite
+docs = []    # No specific docs dependencies listed
+
+[tool.setuptools]
+include-package-data = true
+packages = { find = { exclude = ["magicalimport.tests*"] } }
+# zip_safe = false # zip_safe is not directly configured in pyproject.toml's standard fields.
+# It's often a default or handled by build backend. Let's omit unless an issue arises.
+
+[tool.setuptools.dynamic]
+version = {file = "VERSION"}
+
+[tool.bdist_wheel]
+universal = true
