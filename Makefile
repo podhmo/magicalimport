@@ -2,7 +2,7 @@ ci:
 	$(MAKE) test examples
 	git diff
 test:
-	python setup.py test
+	python -m unittest discover magicalimport/tests
 examles:
 	$(MAKE) -c examples
 
