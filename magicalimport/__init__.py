@@ -1,12 +1,20 @@
 import logging
 import os.path
 import sys
-from magicalimport.compat import ModuleNotFoundError
-from magicalimport.compat import FileNotFoundError
-from magicalimport.compat import _create_module
-from magicalimport.compat import import_module as import_module_original
+from importlib import import_module as import_module_original
+from importlib.util import spec_from_file_location
+from importlib.util import module_from_spec
 
 logger = logging.getLogger(__name__)
+
+
+# Moved from compat.py
+def _create_module(module_id, path):
+    spec = spec_from_file_location(module_id, path)
+    module = module_from_spec(spec)
+    sys.modules[module_id] = module
+    spec.loader.exec_module(module)
+    return module
 
 
 def expose_all_members(module, globals_=None, _depth=2):
