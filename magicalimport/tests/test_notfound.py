@@ -1,6 +1,8 @@
 import unittest
 import os.path
-from magicalimport.compat import ModuleNotFoundError
+
+# ModuleNotFoundError is a built-in exception in Python 3.6+
+# FileNotFoundError is a built-in exception in Python 3.3+
 
 here = os.path.dirname(os.path.abspath(__file__))
 
