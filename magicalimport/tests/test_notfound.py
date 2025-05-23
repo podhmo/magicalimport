@@ -1,6 +1,5 @@
 import unittest
 import os.path
-from magicalimport.compat import ModuleNotFoundError
 
 here = os.path.dirname(os.path.abspath(__file__))
 
