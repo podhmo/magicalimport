@@ -22,3 +22,19 @@ def _create_module(module_id, path):
 
 # ModuleNotFoundError is built-in in Python 3.6+
 # FileNotFoundError is built-in in Python 3.3+
+
+try:
+    # Python 3.6+
+    _ModuleNotFoundError = ModuleNotFoundError
+except NameError:
+    class _ModuleNotFoundError(ImportError):  # type: ignore
+        pass
+ModuleNotFoundError = _ModuleNotFoundError
+
+try:
+    # Python 3.3+
+    _FileNotFoundError = FileNotFoundError
+except NameError:
+    class _FileNotFoundError(IOError):  # type: ignore
+        pass
+FileNotFoundError = _FileNotFoundError

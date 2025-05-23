@@ -1,10 +1,12 @@
 import logging
 import os.path
 import sys
-from magicalimport.compat import ModuleNotFoundError
-from magicalimport.compat import FileNotFoundError
+import magicalimport.compat as compat
 from magicalimport.compat import _create_module
 from magicalimport.compat import import_module as import_module_original
+
+ModuleNotFoundError = compat.ModuleNotFoundError
+FileNotFoundError = compat.FileNotFoundError
 
 logger = logging.getLogger(__name__)
 
