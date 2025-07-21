@@ -1,18 +1,15 @@
 ci:
-	$(MAKE) test examples
+	hatch run test
 	git diff
 test:
-	python -m unittest discover magicalimport/tests
+	hatch run test
 examles:
 	$(MAKE) -c examples
 
 build:
-#	pip install wheel
-	python setup.py bdist_wheel
+	hatch build
 
 upload:
-#	pip install twine
-	twine check dist/magicalimport-$(shell cat VERSION)*
-	twine upload dist/magicalimport-$(shell cat VERSION)*
+	hatch publish
 
 .PHONY: test build upload examples
