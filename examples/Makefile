@@ -1,3 +1,6 @@
+SHELL := bash
+export PYTHONDONTWRITEBYTECODE := 1
+
 default: 00 01 02 03 04 05 06
 
 00:
