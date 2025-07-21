@@ -1,18 +1,14 @@
 [build-system]
-requires = ["setuptools>=42", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
 [project]
 name = "magicalimport"
-# Version will be read dynamically, but if not possible, use the content of the VERSION file.
-# Ensure you read the VERSION file and place its content here.
-# For now, let's assume the version is "0.9.0" as a placeholder if reading dynamically is complex for you.
-# The actual VERSION file content should be used.
 dynamic = ["version"]
 description = "importing a module by physical file path"
-readme = "README.rst"
+readme = "README.md"
 requires-python = ">=3.10"
-license = { text = "MIT License" } # Assuming MIT based on common practice, will verify if LICENSE file exists
+license = { text = "MIT License" }
 authors = [
     { name = "podhmo", email = "ababjam61+github@gmail.com" }
 ]
@@ -24,23 +20,25 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
 ]
-
 dependencies = []
 
 [project.urls]
 Homepage = "https://github.com/podhmo/magicalimport"
 
-[project.optional-dependencies]
-testing = [] # No specific testing dependencies listed beyond test_suite
-docs = []    # No specific docs dependencies listed
+[tool.hatch.version]
+path = "magicalimport/__version__.py"
 
-[tool.setuptools]
-include-package-data = true
-packages = { find = { exclude = ["magicalimport.tests*"] } }
-# zip_safe = false # zip_safe is not directly configured in pyproject.toml's standard fields.
-# It's often a default or handled by build backend. Let's omit unless an issue arises.
+[tool.hatch.build.targets.sdist]
+exclude = [
+    ".github",
+    "examples",
+]
+[tool.hatch.build.targets.wheel]
+packages = ["magicalimport"]
 
-[tool.setuptools.dynamic]
-version = {file = "VERSION"}
-
-[tool.bdist_wheel]
+[tool.hatch.envs.default]
+dependencies = [
+  "pytest",
+]
+[tool.hatch.envs.default.scripts]
+test = "pytest"
