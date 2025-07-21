@@ -3,8 +3,9 @@ ci:
 	git diff
 test:
 	hatch run test
-examles:
-	$(MAKE) -c examples
+
+examples:
+	$(MAKE) -C examples
 
 build:
 	hatch build
